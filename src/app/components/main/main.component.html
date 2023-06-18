@@ -1,4 +1,6 @@
-<div>
+<mat-spinner *ngIf="!error && !allPhotosLoaded"></mat-spinner>
+
+<div [hidden]="!allPhotosLoaded">
 
     <mat-form-field>
         <mat-select [(value)]="selectedDepartment">
@@ -7,9 +9,9 @@
     </mat-form-field>
       
     <ul>
-        <li *ngFor="let employee of employees | sort:'dateOfHire':'desc' | filter:selectedDepartment">
+        <li *ngFor="let employee of employees | sort:'dateOfHire':'desc'" [hidden]="selectedDepartment === 'All Departments' ? false : employee.department != selectedDepartment">
             <div>
-                <img [src]="employee.avatar" (load)="doSomething()">
+                <img [src]="employee.avatar" (load)="tallyPhoto()" (error)="tallyPhoto()">
             </div>
             <div>{{employee.firstName && employee.lastName ? employee.firstName + " " + employee.lastName : "Name"}}</div>
             <div>{{employee.position ? employee.position : "Position"}}</div>
@@ -21,3 +23,5 @@
         </li>
     </ul>
 </div>
+
+<div *ngIf="error">Please try again later. Namaste :-)</div>

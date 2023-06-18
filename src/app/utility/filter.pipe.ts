@@ -6,7 +6,6 @@ import { Employee } from '../interfaces/employee';
 })
 export class FilterPipe implements PipeTransform {
   public transform(value: Employee[], selectedDepartment: string) {
-    
     return value.filter(employee => {
         if (selectedDepartment === 'All Departments') return true;
         return employee.department === selectedDepartment;

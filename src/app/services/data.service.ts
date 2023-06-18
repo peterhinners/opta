@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subject, AsyncSubject, ReplaySubject, Observable } from 'rxjs';
+import { BehaviorSubject, Subject, AsyncSubject, ReplaySubject, Observable, of } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Employee } from '../interfaces/employee';
+import { DepartmentOption } from '../interfaces/department-option';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,7 @@ export class DataService {
     return "something";
   }
 
-  getEmployees(): Observable<Employee[]> {  
+  getEmployees(): Observable<Employee[] | HttpErrorResponse> {  
     // return this.httpClient.get("/api/v2/employees");
 
     // let error = new HttpErrorResponse({ error: 'bar', status: 403 });
@@ -30,8 +31,8 @@ export class DataService {
     return this.httpClient.get<Employee[]>("/api/v2/employees");
   }
 
-  getDepartments(): Observable<any> {
-    return this.httpClient.get("/api/v2/departments");
+  getDepartments(): Observable<string[] | HttpErrorResponse> {
+    return this.httpClient.get<string[]>("/api/v2/departments");
   }
 
 }

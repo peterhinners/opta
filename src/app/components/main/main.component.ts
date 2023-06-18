@@ -3,37 +3,30 @@ import { Component, OnInit } from '@angular/core';
 import { catchError, forkJoin, map, of } from 'rxjs';
 import { Employee } from 'src/app/interfaces/employee';
 import { DataService } from 'src/app/services/data.service';
-
-
-import {MatInputModule} from '@angular/material/input';
-import {NgFor} from '@angular/common';
-import {MatSelectModule} from '@angular/material/select';
-// import {MatFormFieldModule} from '@angular/material/form-field';
+import { DepartmentOption } from 'src/app/interfaces/department-option';
 
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.sass']
-  // imports: [MatFormFieldModule, MatSelectModule, NgFor, MatInputModule, FormsModule]
 })
 export class MainComponent implements OnInit {
 
-  departments: any[] = [
+  departments: DepartmentOption[] = [
     {value: 'All Departments', viewValue: 'All Departments'}
   ];
   employees: Employee[] = [];
   filterType: string = "Default";
   selectedDepartment: string = this.departments[0].value;
   error: boolean = false;
+  employeeCount!: number;
+  photoCount: number = 0;
+  allPhotosLoaded: boolean = false;
 
   constructor(private dataService: DataService) {}
 
   ngOnInit(): void {
     this.getData();
-  }
-
-  doSomething() {
-    console.log("image loaded");
   }
 
   getData(): void {
@@ -50,43 +43,42 @@ export class MainComponent implements OnInit {
             if ((val.employees.status && val.employees.status !== 200) || 
                 (val.departments.status && val.departments.status !== 200)) {
               this.error = true;
+              console.log("this.error: ", this.error);
               return;
             }
 
             // TODO remove this
             val.employees[0].avatar = "blah/blah";
 
+            this.employeeCount = val.employees.length;
             this.employees = val.employees;
-            this.setDepartmentValues(val.departments);
+            this.addDepartmentValues(val.departments);
             
             console.log("val ", val);
             console.log("employees: ", this.employees);
-            console.log("first employee ", this.employees[0].lastName);
+            console.log("this.employeeCount ", this.employeeCount);
         });
   }
 
-  setDepartmentValues(departments: string[]): void {
+  addDepartmentValues(departments: string[]): void {
     departments.forEach(department => {
-      this.departments.push({value: department, viewValue: department});
+      const departmentOption: DepartmentOption = {value: department, viewValue: department};
+      this.departments.push(departmentOption);
     });
   }
 
   isVip(hireDate: string): boolean {
     const formattedHireDate = formatDate(new Date(hireDate),'yyyy-MM-dd','en_US');
     const cutoff = formatDate(new Date("2020-01-01"),'yyyy-MM-dd','en_US');
-    
- 
-    if (formattedHireDate < cutoff) {
-     
-      return true;
-     } else {
-  
-      return false;
-     }
+    if (formattedHireDate < cutoff) return true;
+    return false;
+  }
+
+  tallyPhoto() {
+    this.photoCount++;
+    if (this.photoCount === this.employeeCount) this.allPhotosLoaded = true;
   }
 
 }
-function sortBy(posts: unknown, arg1: string[]): any {
-  throw new Error('Function not implemented.');
-}
+
 
