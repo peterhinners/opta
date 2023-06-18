@@ -10,6 +10,10 @@ import { FilterPipe } from './utility/filter.pipe';
 import { MatSelectModule } from '@angular/material/select';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ChildComponent } from './components/child/child.component';
+import {MatTableModule} from '@angular/material/table';
+import {MatPaginatorModule} from '@angular/material/paginator';
+import {MatCardModule} from '@angular/material/card';
 
 @NgModule({
   declarations: [
@@ -19,7 +23,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     FilterPipe
   ],
   imports: [
-    BrowserModule, HttpClientModule, MatSelectModule, BrowserAnimationsModule, MatProgressSpinnerModule
+    BrowserModule, HttpClientModule, MatSelectModule, BrowserAnimationsModule, MatProgressSpinnerModule, MatTableModule, MatPaginatorModule, MatCardModule
   ],
   providers: [DataService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
