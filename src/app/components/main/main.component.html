@@ -1,0 +1,23 @@
+<div>
+
+    <mat-form-field>
+        <mat-select [(value)]="selectedDepartment">
+            <mat-option [value]="option.value" *ngFor="let option of departments">{{ option.viewValue }}</mat-option>
+        </mat-select>
+    </mat-form-field>
+      
+    <ul>
+        <li *ngFor="let employee of employees | sort:'dateOfHire':'desc' | filter:selectedDepartment">
+            <div>
+                <img [src]="employee.avatar" (load)="doSomething()">
+            </div>
+            <div>{{employee.firstName && employee.lastName ? employee.firstName + " " + employee.lastName : "Name"}}</div>
+            <div>{{employee.position ? employee.position : "Position"}}</div>
+            <div>{{employee.department ? employee.department : "Department"}}</div>
+            <div *ngIf="employee.married">Married</div>
+            <div *ngIf="isVip(employee.dateOfHire)">VIP</div>
+            <div>{{employee.dateOfHire}}</div>
+            
+        </li>
+    </ul>
+</div>
