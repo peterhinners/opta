@@ -14,6 +14,7 @@ import { ChildComponent } from './components/child/child.component';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatCardModule} from '@angular/material/card';
+import {MatChipsModule} from '@angular/material/chips';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,7 @@ import {MatCardModule} from '@angular/material/card';
     FilterPipe
   ],
   imports: [
-    BrowserModule, HttpClientModule, MatSelectModule, BrowserAnimationsModule, MatProgressSpinnerModule, MatTableModule, MatPaginatorModule, MatCardModule
+    BrowserModule, HttpClientModule, MatSelectModule, BrowserAnimationsModule, MatProgressSpinnerModule, MatTableModule, MatPaginatorModule, MatCardModule, MatChipsModule
   ],
   providers: [DataService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

@@ -1,5 +1,5 @@
 import { formatDate } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit } from '@angular/core';
 import { catchError, forkJoin, map, of } from 'rxjs';
 import { Employee } from 'src/app/interfaces/employee';
 import { DataService } from 'src/app/services/data.service';
@@ -12,37 +12,6 @@ import {MatTableDataSource} from '@angular/material/table';
 
 import { ChangeDetectorRef } from '@angular/core';
 
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-}
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  {position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H'},
-  {position: 2, name: 'Helium', weight: 4.0026, symbol: 'He'},
-  {position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li'},
-  {position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be'},
-  {position: 5, name: 'Boron', weight: 10.811, symbol: 'B'},
-  {position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C'},
-  {position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N'},
-  {position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O'},
-  {position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F'},
-  {position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne'},
-  {position: 11, name: 'Sodium', weight: 22.9897, symbol: 'Na'},
-  {position: 12, name: 'Magnesium', weight: 24.305, symbol: 'Mg'},
-  {position: 13, name: 'Aluminum', weight: 26.9815, symbol: 'Al'},
-  {position: 14, name: 'Silicon', weight: 28.0855, symbol: 'Si'},
-  {position: 15, name: 'Phosphorus', weight: 30.9738, symbol: 'P'},
-  {position: 16, name: 'Sulfur', weight: 32.065, symbol: 'S'},
-  {position: 17, name: 'Chlorine', weight: 35.453, symbol: 'Cl'},
-  {position: 18, name: 'Argon', weight: 39.948, symbol: 'Ar'},
-  {position: 19, name: 'Potassium', weight: 39.0983, symbol: 'K'},
-  {position: 20, name: 'Calcium', weight: 40.078, symbol: 'Ca'},
-];
-
-
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
@@ -53,17 +22,6 @@ export class MainComponent implements OnInit, AfterViewInit {
   longText = `The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog
   from Japan. A small, agile dog that copes very well with mountainous terrain, the Shiba Inu was
   originally bred for hunting.`;
-
-  displayedColumns: string[] = ['Employees', 'weight'];
-  dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
-
-  // @ViewChild(MatPaginator)
-  // paginator!: MatPaginator;
-
-  ngAfterViewInit() {
-    // this.dataSource.paginator = this.paginator;
-  }
-
 
 
   departments: DepartmentOption[] = [
@@ -79,22 +37,60 @@ export class MainComponent implements OnInit, AfterViewInit {
 
 
   // length=14;
-  pageIndex=0;
-  pageSize=6;
+  pageIndex = 0;
+  pageSize = 6;
   filterMetadata = { count: 0 };
-  initialCount = 14;
+  currentNumberOfPages = 0;
+  stringOutput: string = "1";
+  // initialCount = 0;
 
   @ViewChild(MatPaginator, { static: true })
   paginator!: MatPaginator;
 
-  constructor(private dataService: DataService, private cdRef:ChangeDetectorRef) {}
+  constructor(private dataService: DataService, private el: ElementRef<HTMLElement>, private cdRef:ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.getData();
   }
 
+  setCurrentNumberOfPages() {
+    this.currentNumberOfPages = Math.ceil(this.filterMetadata.count / this.pageSize);
+  }
+
+  setStringOutput() {
+    
+    // if (this.stringOutput.length >= this.currentNumberOfPages) return;
+
+
+    this.stringOutput = '1';
+    if (this.currentNumberOfPages === 1) return;
+
+    let cols = [];
+    for (let i = 2; i <= this.currentNumberOfPages; i++) {
+      this.stringOutput += i.toString();
+      // cols.push(i * i);
+      console.log("i, ", i)
+    }
+
+    // return this.stringOutput;
+  }
+
+  downPage() {
+    this.paginator.pageIndex--;
+  }
+
+  upPage() {
+    this.paginator.pageIndex++;
+  }
+
   ngAfterViewChecked() {
+    this.setCurrentNumberOfPages();
+    this.setStringOutput();
     this.cdRef.detectChanges();
+  }
+
+  ngAfterViewInit() {
+   
   }
 
 
@@ -108,6 +104,7 @@ export class MainComponent implements OnInit, AfterViewInit {
     console.log("current index before: ", this.pageIndex);
     console.log("should be changing index");
     this.paginator.pageIndex = 0;
+  
 
     console.log("current index after: ", this.pageIndex);
     // this.pageIndex = 0;
@@ -131,12 +128,17 @@ export class MainComponent implements OnInit, AfterViewInit {
               return;
             }
 
-            // TODO remove this
+            // Zero-ing out these values to demonstrate missing info in the UI per mockup
             val.employees[0].avatar = "blah/blah";
+            val.employees[0].firstName = "";
+            val.employees[0].position = "";
+            val.employees[0].department = "";
+
 
             this.employeeCount = val.employees.length;
             this.employees = val.employees;
             this.addDepartmentValues(val.departments);
+      
             
             console.log("val ", val);
             console.log("employees: ", this.employees);
@@ -156,6 +158,11 @@ export class MainComponent implements OnInit, AfterViewInit {
     const cutoff = formatDate(new Date("2020-01-01"),'yyyy-MM-dd','en_US');
     if (formattedHireDate < cutoff) return true;
     return false;
+  }
+
+  missingPhoto(employee: Employee) {
+    employee.avatar = '/assets/missingImage.jpg';
+    employee.missingImage = true;
   }
 
   tallyPhoto() {

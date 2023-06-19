@@ -8,4 +8,5 @@ export interface Employee {
     lastName: string;
     married: boolean;
     position: string;
+    missingImage?: boolean;
 }
