@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subject, AsyncSubject, ReplaySubject, Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Employee } from '../interfaces/employee';
 import { DepartmentOption } from '../interfaces/department-option';
@@ -10,17 +10,11 @@ import { DepartmentOption } from '../interfaces/department-option';
 })
 export class DataService {
 
-//   product$ = new BehaviorSubject<any>('no product yet');
-
   constructor(private httpClient: HttpClient) { }
 
-  setProduct(product: any) {
-    // this.product$.next(product);
-  }
+  getEmployees(): Observable<Employee[] | HttpErrorResponse> { 
 
-  
-  getEmployees(): Observable<Employee[] | HttpErrorResponse> {  
-    // Comment-in the below two lines to simulate HttpErrorResponse
+    // ** Comment-in the below two lines to simulate HttpErrorResponse **
     // const error = new HttpErrorResponse({ error: 'bar', status: 403 });
     // return of(error);
   
@@ -34,17 +28,6 @@ export class DataService {
   setCurrentNumberOfPages(currentCount: number, pageSize: number): number {
     return Math.ceil(currentCount / pageSize);
   }
-
-//   setStringOutput(currentNumberOfPages: number): string {
-//     let stringOutput = '1';
-//     if (currentNumberOfPages === 1) return stringOutput;
-
-//     for (let i = 2; i <= currentNumberOfPages; i++) {
-//       stringOutput += i.toString();
-//     }
-
-//     return stringOutput;
-//   }
 
   // Zero-ing out these values to demonstrate missing info in the UI per mockup
   zeroOutEmployeeDataForDemoPurposes(employee: Employee) {

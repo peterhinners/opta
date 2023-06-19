@@ -8,8 +8,6 @@ import { Employee } from 'src/app/interfaces/employee';
   styleUrls: ['./card.component.css']
 })
 
-
-
 export class CardComponent {
 
   @Input()

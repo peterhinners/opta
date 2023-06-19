@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { catchError, forkJoin, of } from 'rxjs';
 import { Employee } from 'src/app/interfaces/employee';
 import { DataService } from 'src/app/services/data.service';
@@ -8,13 +8,11 @@ import { MatPaginator } from '@angular/material/paginator';
 import { ChangeDetectorRef } from '@angular/core';
 import { ViewEncapsulation } from '@angular/core';
 
-
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.css'],
   encapsulation: ViewEncapsulation.None
-  
 })
 export class MainComponent implements OnInit {
 
@@ -35,7 +33,7 @@ export class MainComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true })
   paginator!: MatPaginator;
 
-  constructor(private dataService: DataService, private el: ElementRef<HTMLElement>, private cdRef:ChangeDetectorRef) {}
+  constructor(private dataService: DataService, private cdRef:ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.getData();
@@ -78,13 +76,11 @@ export class MainComponent implements OnInit {
     this.paginator.pageIndex++;
   }
 
-  changeDepartment(event: any) {
-    console.log("event, ", event);
-    console.log("changedeopartment");
+  changeDepartment() {
     this.paginator.pageIndex = 0;
   }
 
-  // TODO outsource this to service
+  // TODO refactor and/or outsource this to service
   setStringOutput(): void {
 
     if (this.currentNumberOfPages === 1) {

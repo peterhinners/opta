@@ -3,7 +3,6 @@
         <div class="inner">
             <img *ngIf="!employee.missingImage" class="image-class" [src]="employee.avatar" (error)="missingPhoto(employee)" alt="Avatar" style="width:100%">
             <div *ngIf="employee.missingImage" class="image-class missing-image" style="background-color: gray;">
-                <!-- <img [src]="employee.avatar" alt="Avatar" style="width:100%"> -->
             </div>
             <div>
                 <h4>{{employee.firstName && employee.lastName ? employee.firstName + " " + employee.lastName : "Name"}}</h4>

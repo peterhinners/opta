@@ -7,8 +7,8 @@
        
         <div class="header-element">
             <mat-form-field>
-                <mat-select [(value)]="selectedDepartment" (selectionChange)="changeDepartment($event)">
-                    <mat-option style="color: red" class="not-empty-select" [value]="option.value" *ngFor="let option of departments">{{ option.viewValue }}</mat-option>
+                <mat-select [(value)]="selectedDepartment" (selectionChange)="changeDepartment()">
+                    <mat-option [value]="option.value" *ngFor="let option of departments">{{ option.viewValue }}</mat-option>
                 </mat-select>
             </mat-form-field>
         </div>
