@@ -1,6 +1,4 @@
-<div class="main-container">
-
-
+<div [hidden]="error" class="main-container">
     <div class="header-container">
         
         <div class="header-element">
@@ -8,161 +6,57 @@
         </div>
        
         <div class="header-element">
-            <mat-form-field class="depa-select">
-                <mat-select [(value)]="selectedDepartment" (selectionChange)="changeDepartment()">
-                    <mat-option [value]="option.value" *ngFor="let option of departments">{{ option.viewValue }}</mat-option>
+            <mat-form-field>
+                <mat-select [(value)]="selectedDepartment" (selectionChange)="changeDepartment($event)">
+                    <mat-option style="color: red" class="not-empty-select" [value]="option.value" *ngFor="let option of departments">{{ option.viewValue }}</mat-option>
                 </mat-select>
             </mat-form-field>
         </div>
     </div>
 
     <div class="row">
-
-        <div *ngFor="let employee of employees | sort:'dateOfHire':'desc' | filter:selectedDepartment:filterMetadata | slice:
-        (paginator.pageIndex * paginator.pageSize):
-        ((paginator.pageIndex + 1) * paginator.pageSize)">
-            <div class="column">
-                <div class="card">
-                    <div class="inner">
-                        <img *ngIf="!employee.missingImage" class="image-class" [src]="employee.avatar" (error)="missingPhoto(employee)" alt="Avatar" style="width:100%">
-                        <div *ngIf="employee.missingImage" class="image-class missing-image" style="background-color: gray;">
-                            <!-- <img [src]="employee.avatar" alt="Avatar" style="width:100%"> -->
-                        </div>
-                        <div>
-                            <h4>{{employee.firstName && employee.lastName ? employee.firstName + " " + employee.lastName : "Name"}}</h4>
-                            <p class="position">{{employee.position ? employee.position : "Position"}}</p> 
-                            <div class="oval-container">
-                                <div class="oval normal-width normal-background">
-                                    <p class="oval-text normal-text">{{employee.department ? employee.department : "Department"}}
-                                </div>
-                                <div class="oval normal-width normal-background" *ngIf="employee.married">
-                                    <p class="oval-text normal-text">Married
-                                </div>
-                                <div class="oval vip-width vip-background" *ngIf="isVip(employee.dateOfHire)">
-                                    <p class="oval-text vip-text">VIP
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div *ngFor="let employee of employees 
+        | sort:'dateOfHire':'desc' 
+        | filter:selectedDepartment:filterMetadata 
+        | slice:(paginator.pageIndex * paginator.pageSize):((paginator.pageIndex + 1) * paginator.pageSize)">
+            <app-card [employee]="employee"></app-card>
         </div>
-
-
-        <!-- <div *ngFor="let employee of employees | sort:'dateOfHire':'desc' | filter:selectedDepartment:filterMetadata | slice:
-        (paginator.pageIndex * paginator.pageSize):
-        ((paginator.pageIndex + 1) * paginator.pageSize)">
-            <div class="column">
-                <mat-card class="example-card">
-                    <mat-card-header>
-                    <mat-card-title-group>
-                        <img mat-card-lg-image [src]="employee.avatar" (load)="tallyPhoto()" (error)="tallyPhoto()">
-                        <mat-card-title>{{employee.firstName + " " + employee.lastName}}</mat-card-title>
-                        <mat-card-subtitle>hello??</mat-card-subtitle>
-                        
-                    </mat-card-title-group>
-                    </mat-card-header>
-                    <mat-card-content>
-                    {{longText}}
-                    </mat-card-content>
-                </mat-card>
-           
-            </div>
-        </div> -->
     </div>
 
-        
- 
-
-    <br>
-    <br>
-
+    <div class="addSpace"></div>
+    
     <hr align="center" width="95%" style="border-color: #DCDCDC">
    
-
     <div class="fakePaginator">
-
         <div class="flex3">
             <div class="flex-items" *ngIf="paginator.pageIndex != 0" (click)="downPage()"><img style="max-width: 30px;" [src]="'/assets/leftArrow.png'"></div>
 
             <div class="flex-items" *ngIf="paginator.pageIndex === 0" (click)="downPage()"></div>
 
-            <!-- <div class="flex-items-middle" style="font-size: 20px;">{{"pageSize: " + paginator.pageSize + ", pageIndex: " + paginator.pageIndex + ", filterMetadata.count: " + filterMetadata.count}}</div> -->
-            <div class="flex-items-middle" style="font-size: 20px;">{{stringOutput}}</div>
+            <div class="numbers">
+                <span class="flex-items-middle">{{stringOutputBeforeCurrentPage}}</span>
+                <span class="flex-items-middle blue-color">{{stringOutputCurrentPage}}</span>
+                <span class="flex-items-middle">{{stringOutputAfterCurrentPage}}</span>
+            </div>
+
+
 
             <div class="flex-items" *ngIf="paginator.hasNextPage()" (click)="upPage()"><img style="max-width: 30px;" [src]="'/assets/rightArrow.png'"></div>
 
             <div class="flex-items" *ngIf="!paginator.hasNextPage()" (click)="upPage()"></div>
         </div>
-
     </div>
 
-<div [hidden]="true">
-    <mat-paginator [hidden]="true" class="pag-class" #paginator hidePageSize="true" [length]="filterMetadata.count"
-        [pageIndex]="pageIndex"
-        [pageSize]="pageSize"
-        >
-    </mat-paginator>
-</div>
-
-    
-    <!-- <mat-spinner *ngIf="!error && !allPhotosLoaded"></mat-spinner> -->
-
-    <!-- <div [hidden]="!allPhotosLoaded">
-    
-        <ul>
-            <li *ngFor="let employee of employees | sort:'dateOfHire':'desc'" [hidden]="selectedDepartment === 'All Departments' ? false : employee.department != selectedDepartment">
-                <div>
-                    <img [src]="employee.avatar" (load)="tallyPhoto()" (error)="tallyPhoto()">
-                </div>
-                <div>{{employee.firstName && employee.lastName ? employee.firstName + " " + employee.lastName : "Name"}}</div>
-                <div>{{employee.position ? employee.position : "Position"}}</div>
-                <div>{{employee.department ? employee.department : "Department"}}</div>
-                <div *ngIf="employee.married">Married</div>
-                <div *ngIf="isVip(employee.dateOfHire)">VIP</div>
-                <div>{{employee.dateOfHire}}</div>
-                
-            </li>
-        </ul>
-    </div> -->
-
-    <div *ngIf="error">Please try again later. Namaste :-)</div>
-
-</div>
-
-
-
-
-
-    <!-- <div class="mat-elevation-z8">
-        <table id="matTable" mat-table [dataSource]="dataSource">
-    
-
-    
-    
-        <ng-container matColumnDef="Employees">
-            <th mat-header-cell *matHeaderCellDef id="makeRed"> Employees </th>
-            <td mat-cell *matCellDef="let element"> {{element.name}} </td>
-        </ng-container>
-    
-
-        <ng-container matColumnDef="weight">
-            <th mat-header-cell *matHeaderCellDef>
-                <mat-form-field>
-                    <mat-select [(value)]="selectedDepartment">
-                        <mat-option [value]="option.value" *ngFor="let option of departments">{{ option.viewValue }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-
-            </th>
-            <td mat-cell *matCellDef="let element"> {{element.weight}} </td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
-    
-        <mat-paginator [pageSizeOptions]="[3]"
-                    showFirstLastButtons
-                    aria-label="Select page of periodic elements">
+    <div [hidden]="true">
+        <mat-paginator #paginator 
+            hidePageSize="true" 
+            [hidden]="true" 
+            [length]="filterMetadata.count"
+            [pageIndex]="pageIndex"
+            [pageSize]="pageSize">
         </mat-paginator>
-    </div> -->
+    </div>
+  
+</div>
+
+<div *ngIf="error" style="text-align: center;">Please try again later. Namaste :-) </div>

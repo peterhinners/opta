@@ -10,18 +10,19 @@ import { FilterPipe } from './utility/filter.pipe';
 import { MatSelectModule } from '@angular/material/select';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ChildComponent } from './components/child/child.component';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatCardModule} from '@angular/material/card';
 import {MatChipsModule} from '@angular/material/chips';
+import { CardComponent } from './components/card/card.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     MainComponent,
     SortPipe,
-    FilterPipe
+    FilterPipe,
+    CardComponent
   ],
   imports: [
     BrowserModule, HttpClientModule, MatSelectModule, BrowserAnimationsModule, MatProgressSpinnerModule, MatTableModule, MatPaginatorModule, MatCardModule, MatChipsModule

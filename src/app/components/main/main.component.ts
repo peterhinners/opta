@@ -1,48 +1,36 @@
-import { formatDate } from '@angular/common';
 import { Component, ElementRef, OnInit } from '@angular/core';
-import { catchError, forkJoin, map, of } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 import { Employee } from 'src/app/interfaces/employee';
 import { DataService } from 'src/app/services/data.service';
 import { DepartmentOption } from 'src/app/interfaces/department-option';
-import { ChildComponent } from '../child/child.component';
-
-import {AfterViewInit, ViewChild} from '@angular/core';
-import {MatPaginator, PageEvent} from '@angular/material/paginator';
-import {MatTableDataSource} from '@angular/material/table';
-
+import { ViewChild } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
 import { ChangeDetectorRef } from '@angular/core';
+import { ViewEncapsulation } from '@angular/core';
+
 
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
-  styleUrls: ['./main.component.css']
+  styleUrls: ['./main.component.css'],
+  encapsulation: ViewEncapsulation.None
+  
 })
-export class MainComponent implements OnInit, AfterViewInit {
-
-  longText = `The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog
-  from Japan. A small, agile dog that copes very well with mountainous terrain, the Shiba Inu was
-  originally bred for hunting.`;
-
+export class MainComponent implements OnInit {
 
   departments: DepartmentOption[] = [
     {value: 'All Departments', viewValue: 'All Departments'}
   ];
-  employees: Employee[] = [];
-  filterType: string = "Default";
   selectedDepartment: string = this.departments[0].value;
+  employees: Employee[] = [];
   error: boolean = false;
-  employeeCount!: number;
-  photoCount: number = 0;
-  allPhotosLoaded: boolean = false;
-
-
-  // length=14;
   pageIndex = 0;
   pageSize = 6;
   filterMetadata = { count: 0 };
   currentNumberOfPages = 0;
-  stringOutput: string = "1";
-  // initialCount = 0;
+  stringOutputBeforeCurrentPage: string = "";
+  stringOutputCurrentPage: string = "";
+  stringOutputAfterCurrentPage: string = "";
 
   @ViewChild(MatPaginator, { static: true })
   paginator!: MatPaginator;
@@ -53,61 +41,10 @@ export class MainComponent implements OnInit, AfterViewInit {
     this.getData();
   }
 
-  setCurrentNumberOfPages() {
-    this.currentNumberOfPages = Math.ceil(this.filterMetadata.count / this.pageSize);
-  }
-
-  setStringOutput() {
-    
-    // if (this.stringOutput.length >= this.currentNumberOfPages) return;
-
-
-    this.stringOutput = '1';
-    if (this.currentNumberOfPages === 1) return;
-
-    let cols = [];
-    for (let i = 2; i <= this.currentNumberOfPages; i++) {
-      this.stringOutput += i.toString();
-      // cols.push(i * i);
-      console.log("i, ", i)
-    }
-
-    // return this.stringOutput;
-  }
-
-  downPage() {
-    this.paginator.pageIndex--;
-  }
-
-  upPage() {
-    this.paginator.pageIndex++;
-  }
-
   ngAfterViewChecked() {
-    this.setCurrentNumberOfPages();
+    this.currentNumberOfPages = this.dataService.setCurrentNumberOfPages(this.filterMetadata.count, this.pageSize);
     this.setStringOutput();
     this.cdRef.detectChanges();
-  }
-
-  ngAfterViewInit() {
-   
-  }
-
-
-  changePage(event:PageEvent){
-    console.log("you're in page index",event.pageIndex);
-    
-    // ..make something more...
-  }
-
-  changeDepartment() {
-    console.log("current index before: ", this.pageIndex);
-    console.log("should be changing index");
-    this.paginator.pageIndex = 0;
-  
-
-    console.log("current index after: ", this.pageIndex);
-    // this.pageIndex = 0;
   }
 
   getData(): void {
@@ -119,55 +56,66 @@ export class MainComponent implements OnInit, AfterViewInit {
       departments: this.dataService.getDepartments()
     }).pipe(
         catchError(error => of(error))).
-          subscribe(val => {
-              
-            if ((val.employees.status && val.employees.status !== 200) || 
-                (val.departments.status && val.departments.status !== 200)) {
-              this.error = true;
-              console.log("this.error: ", this.error);
-              return;
-            }
-
-            // Zero-ing out these values to demonstrate missing info in the UI per mockup
-            val.employees[0].avatar = "blah/blah";
-            val.employees[0].firstName = "";
-            val.employees[0].position = "";
-            val.employees[0].department = "";
-
-
-            this.employeeCount = val.employees.length;
-            this.employees = val.employees;
-            this.addDepartmentValues(val.departments);
-      
-            
-            console.log("val ", val);
-            console.log("employees: ", this.employees);
-            console.log("this.employeeCount ", this.employeeCount);
-        });
+          subscribe(val => this.handleForkJoinData(val));
   }
 
-  addDepartmentValues(departments: string[]): void {
-    departments.forEach(department => {
-      const departmentOption: DepartmentOption = {value: department, viewValue: department};
-      this.departments.push(departmentOption);
-    });
+  // Todo create interface to handle forkJoin data, which could also be HttpErrorResponse 
+  // See dataService getEmployees() to simulate error response
+  handleForkJoinData(val: any) {
+    this.error = this.dataService.hasHttpErrorResponse(val);
+    if (this.error) return;
+
+    this.dataService.zeroOutEmployeeDataForDemoPurposes(val.employees[0]);
+    this.departments.push(...this.dataService.addDepartmentValues(val.departments)); 
+    this.employees = val.employees;
   }
 
-  isVip(hireDate: string): boolean {
-    const formattedHireDate = formatDate(new Date(hireDate),'yyyy-MM-dd','en_US');
-    const cutoff = formatDate(new Date("2020-01-01"),'yyyy-MM-dd','en_US');
-    if (formattedHireDate < cutoff) return true;
-    return false;
+  downPage() {
+    this.paginator.pageIndex--;
   }
 
-  missingPhoto(employee: Employee) {
-    employee.avatar = '/assets/missingImage.jpg';
-    employee.missingImage = true;
+  upPage() {
+    this.paginator.pageIndex++;
   }
 
-  tallyPhoto() {
-    this.photoCount++;
-    if (this.photoCount === this.employeeCount) this.allPhotosLoaded = true;
+  changeDepartment(event: any) {
+    console.log("event, ", event);
+    console.log("changedeopartment");
+    this.paginator.pageIndex = 0;
+  }
+
+  // TODO outsource this to service
+  setStringOutput(): void {
+
+    if (this.currentNumberOfPages === 1) {
+      this.stringOutputBeforeCurrentPage = "";
+      this.stringOutputCurrentPage = "1";
+      this.stringOutputAfterCurrentPage = "";
+      return;
+    }
+
+    let stringOutputBeforeCurrentPage = "";
+    let stringOutputAfterCurrentPage = "";
+    let initialOuput = "1";
+
+    for (let i = 2; i <= this.currentNumberOfPages; i++) {
+      initialOuput += i.toString();
+    }
+
+    this.stringOutputCurrentPage = (this.paginator.pageIndex + 1).toString();
+
+    const pageArray = initialOuput.split(this.stringOutputCurrentPage);
+
+    for (const page of pageArray) {
+      if (page < this.stringOutputCurrentPage) {
+         stringOutputBeforeCurrentPage += page;
+      } else {
+        stringOutputAfterCurrentPage += page;
+      }
+    }
+
+    this.stringOutputBeforeCurrentPage = stringOutputBeforeCurrentPage;
+    this.stringOutputAfterCurrentPage = stringOutputAfterCurrentPage;
   }
 
 }

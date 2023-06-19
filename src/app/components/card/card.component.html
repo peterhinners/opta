@@ -1,0 +1,25 @@
+<div class="column">
+    <div class="card">
+        <div class="inner">
+            <img *ngIf="!employee.missingImage" class="image-class" [src]="employee.avatar" (error)="missingPhoto(employee)" alt="Avatar" style="width:100%">
+            <div *ngIf="employee.missingImage" class="image-class missing-image" style="background-color: gray;">
+                <!-- <img [src]="employee.avatar" alt="Avatar" style="width:100%"> -->
+            </div>
+            <div>
+                <h4>{{employee.firstName && employee.lastName ? employee.firstName + " " + employee.lastName : "Name"}}</h4>
+                <p class="position">{{employee.position ? employee.position : "Position"}}</p> 
+                <div class="oval-container">
+                    <div class="oval normal-width normal-background">
+                        <p class="oval-text normal-text">{{employee.department ? employee.department : "Department"}}
+                    </div>
+                    <div class="oval normal-width normal-background" *ngIf="employee.married">
+                        <p class="oval-text normal-text">Married
+                    </div>
+                    <div class="oval vip-width vip-background" *ngIf="isVip(employee.dateOfHire)">
+                        <p class="oval-text vip-text">VIP
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
